@@ -3,9 +3,14 @@ from typing import List, Dict, Any
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import logging
 
 from database import create_document, get_documents
 from schemas import Order, OrderItem
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logger = logging.getLogger("bitsbites")
 
 app = FastAPI(title="Bits&Bites API")
 
@@ -232,6 +237,10 @@ def create_order(order: Order):
     }
 
     inserted_id = create_document("order", doc)
+
+    # Log the payment method as requested (no Razorpay or other gateways involved)
+    logger.info("New order saved: id=%s, payment_method=%s, total=%.2f", inserted_id, order.payment_method, total)
+
     return {"ok": True, "order_id": inserted_id, "total": total}
 
 
